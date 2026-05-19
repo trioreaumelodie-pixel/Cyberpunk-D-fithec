@@ -1,0 +1,40 @@
+name: Render Video ESEA 2023
+
+on:
+  push:
+    branches: [claude/setup-video-project-av4zk]
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chrome dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+            libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 \
+            libxfixes3 libxrandr2 libgbm1 libasound2t64
+
+      - name: Render video
+        run: npx remotion render ESEA2023 out/esea-2023-nouvelle-aquitaine.mp4 --log=verbose
+        env:
+          REMOTION_SKIP_CHROME_DOWNLOAD: "0"
+
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: esea-2023-nouvelle-aquitaine
+          path: out/esea-2023-nouvelle-aquitaine.mp4
+          retention-days: 7
