@@ -28,15 +28,3 @@ export const theme = {
   h: 1080,
 };
 
-// Timings des scènes (en secondes)
-export const TIMINGS = {
-  title:      { start: 0,  dur: 6 },
-  farmCount:  { start: 6,  dur: 13 },
-  land:       { start: 19, dur: 13 },
-  livestock:  { start: 32, dur: 12 },
-  micro:      { start: 44, dur: 12 },
-  conclusion: { start: 56, dur: 10 },
-  outro:      { start: 66, dur: 5 },  // 4.24s arrondi
-};
-
-export const TOTAL_S = 71;
