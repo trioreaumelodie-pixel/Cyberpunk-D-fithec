@@ -1,39 +1,59 @@
 import React from 'react';
-import { AbsoluteFill, Sequence } from 'remotion';
-import { TitleScene } from './scenes/TitleScene';
-import { FarmCountScene } from './scenes/FarmCountScene';
-import { LandScene } from './scenes/LandScene';
-import { LivestockScene } from './scenes/LivestockScene';
+import { AbsoluteFill, Sequence, Audio, staticFile } from 'remotion';
+import { TitleScene }      from './scenes/TitleScene';
+import { FarmCountScene }  from './scenes/FarmCountScene';
+import { LandScene }       from './scenes/LandScene';
+import { LivestockScene }  from './scenes/LivestockScene';
 import { MicroFarmsScene } from './scenes/MicroFarmsScene';
 import { ConclusionScene } from './scenes/ConclusionScene';
+import { OutroScene }      from './scenes/OutroScene';
+import { TIMINGS, theme }  from './theme';
 
-// Total: ~3600 frames at 30fps = 2 minutes
-// Timing (frames at 30fps):
-// Title:      0–150   (5s)
-// FarmCount: 150–450  (10s)
-// Land:      450–750  (10s)
-// Livestock: 750–1050 (10s)
-// Micro:    1050–1350 (10s)
-// Conclusion:1350–1590 (8s) + outro 1590–1650 (2s)
+const FPS = theme.fps;
+const s = (sec: number) => Math.round(sec * FPS);
 
-const FPS = 30;
-const s = (seconds: number) => Math.round(seconds * FPS);
+// Chargement des polices Google Fonts via CSS injecté
+const FONT_CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Yeseva+One&family=DM+Sans:wght@400;500;700;800&display=swap');
+`;
 
-const SCENES = [
-  { from: s(0),   duration: s(5),  Scene: TitleScene },
-  { from: s(5),   duration: s(12), Scene: FarmCountScene },
-  { from: s(17),  duration: s(12), Scene: LandScene },
-  { from: s(29),  duration: s(12), Scene: LivestockScene },
-  { from: s(41),  duration: s(12), Scene: MicroFarmsScene },
-  { from: s(53),  duration: s(10), Scene: ConclusionScene },
+const scenes = [
+  { key: 'title',      start: s(TIMINGS.title.start),      dur: s(TIMINGS.title.dur),      Scene: TitleScene },
+  { key: 'farmCount',  start: s(TIMINGS.farmCount.start),  dur: s(TIMINGS.farmCount.dur),  Scene: FarmCountScene },
+  { key: 'land',       start: s(TIMINGS.land.start),       dur: s(TIMINGS.land.dur),       Scene: LandScene },
+  { key: 'livestock',  start: s(TIMINGS.livestock.start),  dur: s(TIMINGS.livestock.dur),  Scene: LivestockScene },
+  { key: 'micro',      start: s(TIMINGS.micro.start),      dur: s(TIMINGS.micro.dur),      Scene: MicroFarmsScene },
+  { key: 'conclusion', start: s(TIMINGS.conclusion.start), dur: s(TIMINGS.conclusion.dur), Scene: ConclusionScene },
+  { key: 'outro',      start: s(TIMINGS.outro.start),      dur: s(TIMINGS.outro.dur),      Scene: OutroScene },
+];
+
+// Fichiers audio voix off générés par TTS (un par scène)
+const AUDIO_FILES = [
+  { key: 'title',      file: 'audio/vo_title.mp3',      start: TIMINGS.title.start },
+  { key: 'farmCount',  file: 'audio/vo_farmcount.mp3',  start: TIMINGS.farmCount.start },
+  { key: 'land',       file: 'audio/vo_land.mp3',       start: TIMINGS.land.start },
+  { key: 'livestock',  file: 'audio/vo_livestock.mp3',  start: TIMINGS.livestock.start },
+  { key: 'micro',      file: 'audio/vo_micro.mp3',      start: TIMINGS.micro.start },
+  { key: 'conclusion', file: 'audio/vo_conclusion.mp3', start: TIMINGS.conclusion.start },
 ];
 
 export const VideoESEA: React.FC = () => {
   return (
-    <AbsoluteFill style={{ background: '#F8F8F0' }}>
-      {SCENES.map(({ from, duration, Scene }, i) => (
-        <Sequence key={i} from={from} durationInFrames={duration}>
+    <AbsoluteFill style={{ background: theme.colors.white }}>
+      {/* Injection polices Google Fonts */}
+      <style dangerouslySetInnerHTML={{ __html: FONT_CSS }} />
+
+      {/* Scènes visuelles */}
+      {scenes.map(({ key, start, dur, Scene }) => (
+        <Sequence key={key} from={start} durationInFrames={dur}>
           <Scene />
+        </Sequence>
+      ))}
+
+      {/* Voix off — chaque fichier audio est placé au bon offset */}
+      {AUDIO_FILES.map(({ key, file, start }) => (
+        <Sequence key={`audio-${key}`} from={s(start)} durationInFrames={s(60)}>
+          <Audio src={staticFile(file)} volume={1} />
         </Sequence>
       ))}
     </AbsoluteFill>

@@ -8,33 +8,48 @@ on:
 jobs:
   render:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
+      # ---------- Node / JS ----------
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install dependencies
+      - name: Install JS dependencies
         run: npm ci
 
-      - name: Install Chrome dependencies
+      # ---------- Python / TTS ----------
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install edge-tts
+        run: pip install edge-tts
+
+      - name: Generate voiceover (fr-FR-DeniseNeural)
+        run: python3 scripts/generate_voiceover.py
+
+      # ---------- Chrome ----------
+      - name: Install Chrome system libraries
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
             libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 \
-            libxfixes3 libxrandr2 libgbm1 libasound2t64
+            libxfixes3 libxrandr2 libgbm1 libasound2t64 \
+            fonts-liberation
 
-      - name: Render video
-        run: npx remotion render ESEA2023 out/esea-2023-nouvelle-aquitaine.mp4 --log=verbose
-        env:
-          REMOTION_SKIP_CHROME_DOWNLOAD: "0"
+      # ---------- Render ----------
+      - name: Render video (ESEA2023)
+        run: npx remotion render ESEA2023 out/esea-2023-nouvelle-aquitaine.mp4
 
-      - name: Upload video artifact
+      # ---------- Upload ----------
+      - name: Upload MP4
         uses: actions/upload-artifact@v4
         with:
           name: esea-2023-nouvelle-aquitaine
           path: out/esea-2023-nouvelle-aquitaine.mp4
-          retention-days: 7
+          retention-days: 14

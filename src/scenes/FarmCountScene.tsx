@@ -3,272 +3,86 @@ import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
 import { WhiteboardBackground } from '../components/WhiteboardBackground';
 import { theme } from '../theme';
 
-const CountUp: React.FC<{ value: number; suffix?: string; prefix?: string; color?: string }> = ({
-  value,
-  suffix = '',
-  prefix = '',
-  color = theme.colors.green,
-}) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const progress = spring({ frame: frame - 10, fps, config: { damping: 30, stiffness: 40 }, from: 0, to: 1 });
-  const displayed = Math.round(progress * value);
-
-  return (
-    <span style={{ color, fontWeight: 800 }}>
-      {prefix}
-      {displayed.toLocaleString('fr-FR')}
-      {suffix}
-    </span>
-  );
-};
+const bars = [
+  { year: '2010', val: 100, label: '~73 000', color: theme.colors.barC },
+  { year: '2020', val: 87,  label: '~64 000', color: theme.colors.barB },
+  { year: '2023', val: 77,  label: '56 552',  color: theme.colors.barA },
+];
 
 export const FarmCountScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const titleOpacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: 'clamp' });
-  const card1Scale = spring({ frame: frame - 15, fps, config: { damping: 14 }, from: 0, to: 1 });
-  const card2Scale = spring({ frame: frame - 35, fps, config: { damping: 14 }, from: 0, to: 1 });
-  const card3Scale = spring({ frame: frame - 55, fps, config: { damping: 14 }, from: 0, to: 1 });
-  const arrowOpacity = interpolate(frame, [70, 90], [0, 1], { extrapolateRight: 'clamp' });
-  const textOpacity = interpolate(frame, [80, 100], [0, 1], { extrapolateRight: 'clamp' });
-
-  // Bar chart animation
-  const barWidth2010 = interpolate(frame, [20, 60], [0, 100], { extrapolateRight: 'clamp' });
-  const barWidth2020 = interpolate(frame, [30, 65], [0, 88], { extrapolateRight: 'clamp' });
-  const barWidth2023 = interpolate(frame, [40, 70], [0, 78], { extrapolateRight: 'clamp' });
+  const fi  = (f: number) => interpolate(frame, [f, f + 20], [0, 1], { extrapolateRight: 'clamp' });
+  const bw  = (f: number, pct: number) => interpolate(frame, [f, f + 35], [0, pct * 6.8], { extrapolateRight: 'clamp' });
+  const sc  = (f: number) => spring({ frame: frame - f, fps, config: { damping: 15 }, from: 0, to: 1 });
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
       <WhiteboardBackground />
 
-      {/* Section badge */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 60,
-          left: 80,
-          opacity: titleOpacity,
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-          }}
-        >
-          <div
-            style={{
-              width: 8,
-              height: 60,
-              background: theme.colors.green,
-              borderRadius: 4,
-            }}
-          />
-          <div>
-            <div
-              style={{
-                fontFamily: theme.fonts.heading,
-                fontWeight: 800,
-                fontSize: 44,
-                color: theme.colors.green,
-                lineHeight: 1.1,
-              }}
-            >
-              Nombre d'exploitations
-            </div>
-            <div
-              style={{
-                fontFamily: theme.fonts.body,
-                fontSize: 22,
-                color: theme.colors.grayDark,
-                marginTop: 6,
-              }}
-            >
-              Nouvelle-Aquitaine — hors micro-exploitations
-            </div>
+      {/* En-tête */}
+      <div style={{ position: 'absolute', top: 55, left: 80, display: 'flex', alignItems: 'center', gap: 18, opacity: fi(0) }}>
+        <div style={{ width: 7, height: 64, background: theme.colors.greenDark, borderRadius: 4 }}/>
+        <div>
+          <div style={{ fontFamily: theme.fontTitle, fontSize: 48, color: theme.colors.text, lineHeight: 1.05 }}>
+            Nombre d'exploitations agricoles
+          </div>
+          <div style={{ fontFamily: theme.fontBody, fontSize: 21, color: theme.colors.textSub, marginTop: 5 }}>
+            Nouvelle-Aquitaine — hors micro-exploitations
           </div>
         </div>
       </div>
 
-      {/* Big number */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 180,
-          left: 80,
-          fontFamily: theme.fonts.heading,
-          fontSize: 120,
-          lineHeight: 1,
-          color: theme.colors.text,
-        }}
-      >
-        <CountUp value={56552} color={theme.colors.green} />
-        <div
-          style={{
-            fontFamily: theme.fonts.body,
-            fontSize: 24,
-            color: theme.colors.grayDark,
-            fontWeight: 400,
-            marginTop: 8,
-          }}
-        >
-          exploitations agricoles en 2023
+      {/* Grand chiffre */}
+      <div style={{ position: 'absolute', top: 185, left: 80, opacity: fi(10) }}>
+        <div style={{ fontFamily: theme.fontTitle, fontSize: 110, color: theme.colors.greenDark, lineHeight: 1 }}>
+          56 552
+        </div>
+        <div style={{ fontFamily: theme.fontBody, fontSize: 22, color: theme.colors.textSub, marginTop: 4 }}>
+          exploitations en 2023
         </div>
       </div>
 
-      {/* Bar chart */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 120,
-          left: 80,
-          width: 700,
-        }}
-      >
-        {[
-          { year: '2010', width: barWidth2010, pct: '~73 000', color: theme.colors.gray },
-          { year: '2020', width: barWidth2020, pct: '~64 000', color: theme.colors.accent },
-          { year: '2023', width: barWidth2023, pct: '56 552', color: theme.colors.green },
-        ].map(({ year, width, pct, color }) => (
-          <div key={year} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 22 }}>
-            <div
-              style={{
-                fontFamily: theme.fonts.body,
-                fontWeight: 700,
-                fontSize: 22,
-                color: theme.colors.grayDark,
-                width: 60,
-              }}
-            >
-              {year}
-            </div>
-            <div
-              style={{
-                height: 44,
-                width: `${width * 5}px`,
-                background: color,
-                borderRadius: '0 6px 6px 0',
-                transition: 'width 0.1s',
-                display: 'flex',
-                alignItems: 'center',
-                paddingRight: 12,
-                justifyContent: 'flex-end',
-                minWidth: 20,
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: theme.fonts.body,
-                  fontWeight: 700,
-                  fontSize: 18,
-                  color: color === theme.colors.green ? theme.colors.white : theme.colors.text,
-                }}
-              >
-                {pct}
-              </span>
+      {/* Barres horizontales */}
+      <div style={{ position: 'absolute', bottom: 110, left: 80, width: 760 }}>
+        <div style={{ fontFamily: theme.fontBody, fontWeight: 700, fontSize: 16, color: theme.colors.textSub, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 18 }}>
+          Évolution du nombre d'exploitations
+        </div>
+        {bars.map(({ year, val, label, color }, i) => (
+          <div key={year} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
+            <div style={{ fontFamily: theme.fontBody, fontWeight: 700, fontSize: 20, color: theme.colors.textSub, width: 54, flexShrink: 0 }}>{year}</div>
+            <div style={{
+              height: 46, width: bw(15 + i * 12, val),
+              background: color, borderRadius: '0 6px 6px 0',
+              display: 'flex', alignItems: 'center', paddingRight: 14, justifyContent: 'flex-end', minWidth: 12,
+            }}>
+              <span style={{ fontFamily: theme.fontBody, fontWeight: 700, fontSize: 18, color: color === theme.colors.barA ? '#fff' : theme.colors.text }}>{label}</span>
             </div>
           </div>
         ))}
+        <div style={{ fontFamily: theme.fontBody, fontSize: 14, color: theme.colors.textSub, marginTop: 4 }}>
+          Source : Agreste – RA 2010, RA 2020, ESEA 2023
+        </div>
       </div>
 
-      {/* Stats cards */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 340,
-          right: 80,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 24,
-        }}
-      >
+      {/* Cartes stats */}
+      <div style={{ position: 'absolute', top: 175, right: 80, display: 'flex', flexDirection: 'column', gap: 22, width: 380 }}>
         {[
-          {
-            scale: card1Scale,
-            label: 'recul en 3 ans',
-            value: '−12 %',
-            sub: '(proche du rythme national)',
-            color: theme.colors.red,
-          },
-          {
-            scale: card2Scale,
-            label: 'micro-exploitations/an',
-            value: '−10,9 %',
-            sub: 'recul accéléré lié à la PAC',
-            color: theme.colors.red,
-          },
-          {
-            scale: card3Scale,
-            label: 'grandes exploitations/an',
-            value: '+0,1 %',
-            sub: 'effectifs stables',
-            color: theme.colors.greenLight,
-          },
-        ].map(({ scale, label, value, sub, color }) => (
-          <div
-            key={label}
-            style={{
-              transform: `scale(${scale})`,
-              background: theme.colors.white,
-              borderRadius: 12,
-              padding: '20px 28px',
-              width: 340,
-              boxShadow: '0 4px 24px rgba(0,79,39,0.10)',
-              borderLeft: `6px solid ${color}`,
-            }}
-          >
-            <div
-              style={{
-                fontFamily: theme.fonts.heading,
-                fontWeight: 800,
-                fontSize: 42,
-                color,
-                lineHeight: 1,
-              }}
-            >
-              {value}
-            </div>
-            <div
-              style={{
-                fontFamily: theme.fonts.body,
-                fontWeight: 700,
-                fontSize: 18,
-                color: theme.colors.text,
-                marginTop: 4,
-              }}
-            >
-              {label}
-            </div>
-            <div
-              style={{
-                fontFamily: theme.fonts.body,
-                fontSize: 15,
-                color: theme.colors.grayDark,
-                marginTop: 4,
-              }}
-            >
-              {sub}
-            </div>
+          { f: 20, val: '−12 %', label: 'en 3 ans', sub: 'rythme national similaire', border: '#C1292E' },
+          { f: 40, val: '−10,9 %/an', label: 'micro-exploitations', sub: 'recul accéléré lié à la PAC 2023', border: '#C1292E' },
+          { f: 60, val: '+0,1 %/an', label: 'grandes exploitations', sub: 'effectifs stables', border: theme.colors.green },
+        ].map(({ f, val, label, sub, border }) => (
+          <div key={label} style={{
+            transform: `scale(${sc(f)})`,
+            background: theme.colors.white, borderRadius: 12, padding: '18px 24px',
+            boxShadow: '0 3px 18px rgba(75,118,81,0.13)', borderLeft: `6px solid ${border}`,
+          }}>
+            <div style={{ fontFamily: theme.fontTitle, fontSize: 40, color: border, lineHeight: 1 }}>{val}</div>
+            <div style={{ fontFamily: theme.fontBody, fontWeight: 700, fontSize: 17, color: theme.colors.text, marginTop: 3 }}>{label}</div>
+            <div style={{ fontFamily: theme.fontBody, fontSize: 14, color: theme.colors.textSub, marginTop: 3 }}>{sub}</div>
           </div>
         ))}
-      </div>
-
-      {/* Source note */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 30,
-          left: 80,
-          opacity: textOpacity,
-          fontFamily: theme.fonts.body,
-          fontSize: 16,
-          color: theme.colors.grayDark,
-        }}
-      >
-        Source : Agreste – RA 2010, RA 2020, ESEA 2023
       </div>
     </div>
   );
