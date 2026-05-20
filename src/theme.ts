@@ -1,23 +1,42 @@
-// AGRESTE / Ministère de l'Agriculture - charte graphique
+// Charte graphique PPTX Agreste / MAASA
 export const theme = {
   colors: {
-    green: '#004F27',
-    greenLight: '#78BE20',
-    greenMid: '#006B3A',
-    blue: '#003189',
-    white: '#FFFFFF',
-    offWhite: '#F8F8F0',
-    gray: '#E8E8E0',
-    grayDark: '#555555',
-    text: '#1A1A1A',
-    accent: '#D4E9C0',
-    red: '#C0392B',
+    // Verts issus du PPTX
+    greenDark:  '#4b7651',
+    green:      '#39a96b',
+    greenLight: '#bfe6d6',
+    greenPale:  '#e8f5ef',
+    // Texte
+    text:       '#1D1D1D',
+    textSub:    '#555555',
+    // Fond
+    white:      '#FFFFFF',
+    offWhite:   '#FAFAFA',
+    // Accents Marianne
+    mariBlue:   '#003189',
+    mariRed:    '#C1292E',
+    // Données
+    barA:       '#4b7651',
+    barB:       '#39a96b',
+    barC:       '#bfe6d6',
   },
-  fonts: {
-    heading: '"Marianne", "Arial", sans-serif',
-    body: '"Marianne", "Arial", sans-serif',
-  },
+  // Polices PPTX
+  fontTitle:  '"Yeseva One", Georgia, serif',
+  fontBody:   '"DM Sans", "Helvetica Neue", Arial, sans-serif',
   fps: 30,
-  width: 1920,
-  height: 1080,
+  w: 1920,
+  h: 1080,
 };
+
+// Timings des scènes (en secondes)
+export const TIMINGS = {
+  title:      { start: 0,  dur: 6 },
+  farmCount:  { start: 6,  dur: 13 },
+  land:       { start: 19, dur: 13 },
+  livestock:  { start: 32, dur: 12 },
+  micro:      { start: 44, dur: 12 },
+  conclusion: { start: 56, dur: 10 },
+  outro:      { start: 66, dur: 5 },  // 4.24s arrondi
+};
+
+export const TOTAL_S = 71;

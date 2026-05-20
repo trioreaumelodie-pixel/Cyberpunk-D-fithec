@@ -8,143 +8,60 @@ export const TitleScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const logoScale = spring({ frame, fps, config: { damping: 14, stiffness: 120 }, from: 0, to: 1 });
-  const titleOpacity = interpolate(frame, [20, 45], [0, 1], { extrapolateRight: 'clamp' });
-  const titleY = interpolate(frame, [20, 45], [30, 0], { extrapolateRight: 'clamp' });
-  const subtitleOpacity = interpolate(frame, [40, 65], [0, 1], { extrapolateRight: 'clamp' });
-  const badgeOpacity = interpolate(frame, [60, 85], [0, 1], { extrapolateRight: 'clamp' });
-  const lineWidth = interpolate(frame, [50, 80], [0, 460], { extrapolateRight: 'clamp' });
+  const fadeIn   = (f: number) => interpolate(frame, [f, f + 22], [0, 1], { extrapolateRight: 'clamp' });
+  const slideUp  = (f: number) => interpolate(frame, [f, f + 22], [28, 0], { extrapolateRight: 'clamp' });
+  const lineW    = interpolate(frame, [45, 75], [0, 560], { extrapolateRight: 'clamp' });
+  const logoSc   = spring({ frame: frame - 5, fps, config: { damping: 16, stiffness: 100 }, from: 0, to: 1 });
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
       <WhiteboardBackground />
 
-      {/* Left green panel */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          width: 480,
-          height: '100%',
-          background: `linear-gradient(160deg, ${theme.colors.green} 0%, ${theme.colors.greenMid} 100%)`,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 40,
-        }}
-      >
-        <div style={{ transform: `scale(${logoScale})` }}>
-          <AgresteLogo size={160} light />
+      {/* Logo Agreste haut-gauche */}
+      <div style={{ position: 'absolute', top: 52, left: 80, transform: `scale(${logoSc})`, transformOrigin: 'top left' }}>
+        <AgresteLogo size={110} dark />
+      </div>
+
+      {/* Badge étude */}
+      <div style={{ position: 'absolute', top: 52, right: 80, opacity: fadeIn(30), display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+        <div style={{ background: theme.colors.greenDark, color: '#fff', fontFamily: theme.fontBody, fontWeight: 700, fontSize: 17, padding: '5px 16px', borderRadius: 4, letterSpacing: '0.06em' }}>
+          MARS 2026 · N°59
         </div>
-        <div
-          style={{
-            color: 'rgba(255,255,255,0.6)',
-            fontSize: 18,
-            fontFamily: theme.fonts.body,
-            textAlign: 'center',
-            padding: '0 40px',
-            lineHeight: 1.5,
-          }}
-        >
+        <div style={{ fontFamily: theme.fontBody, fontSize: 16, color: theme.colors.textSub }}>
           Nouvelle-Aquitaine
-          <br />
-          Mars 2026 · N°59
         </div>
       </div>
 
-      {/* Right content */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 520,
-          right: 80,
-          top: 0,
-          bottom: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          gap: 28,
-        }}
-      >
-        {/* Eyebrow */}
-        <div
-          style={{
-            opacity: badgeOpacity,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-          }}
-        >
-          <div
-            style={{
-              background: theme.colors.greenLight,
-              color: theme.colors.green,
-              fontFamily: theme.fonts.body,
-              fontWeight: 700,
-              fontSize: 20,
-              padding: '6px 18px',
-              borderRadius: 4,
-              letterSpacing: '0.05em',
-            }}
-          >
-            ESEA 2023
-          </div>
-          <div
-            style={{
-              color: theme.colors.grayDark,
-              fontFamily: theme.fonts.body,
-              fontSize: 20,
-            }}
-          >
-            Enquête sur la Structure des Exploitations Agricoles
-          </div>
+      {/* Titre principal */}
+      <div style={{ position: 'absolute', top: 210, left: 80, right: 80 }}>
+        <div style={{
+          opacity: fadeIn(18), transform: `translateY(${slideUp(18)}px)`,
+          fontFamily: theme.fontTitle,
+          fontSize: 82,
+          color: theme.colors.text,
+          lineHeight: 1.12,
+          maxWidth: 1100,
+        }}>
+          En 2023, les tendances{' '}
+          <span style={{ color: theme.colors.greenDark }}>2010–2020</span>
+          <br/>se poursuivent en<br/>
+          <span style={{ color: theme.colors.greenDark }}>Nouvelle-Aquitaine</span>
         </div>
 
-        {/* Main title */}
-        <div
-          style={{
-            opacity: titleOpacity,
-            transform: `translateY(${titleY}px)`,
-            fontFamily: theme.fonts.heading,
-            fontWeight: 800,
-            fontSize: 62,
-            color: theme.colors.green,
-            lineHeight: 1.15,
-          }}
-        >
-          En 2023, les tendances
-          <br />
-          <span style={{ color: theme.colors.greenLight }}>2010–2020</span> se
-          <br />
-          poursuivent
-        </div>
+        {/* Ligne animée */}
+        <div style={{ width: lineW, height: 4, background: `linear-gradient(90deg, ${theme.colors.greenDark}, ${theme.colors.green})`, borderRadius: 2, marginTop: 32 }} />
 
-        {/* Separator line drawn */}
-        <div
-          style={{
-            width: lineWidth,
-            height: 4,
-            background: `linear-gradient(90deg, ${theme.colors.green}, ${theme.colors.greenLight})`,
-            borderRadius: 2,
-          }}
-        />
-
-        {/* Subtitle */}
-        <div
-          style={{
-            opacity: subtitleOpacity,
-            fontFamily: theme.fonts.body,
-            fontSize: 28,
-            color: theme.colors.grayDark,
-            lineHeight: 1.5,
-          }}
-        >
-          Structures agricoles en Nouvelle-Aquitaine :
-          <br />
-          moins d'exploitations, des fermes plus grandes
+        <div style={{ opacity: fadeIn(50), transform: `translateY(${slideUp(50)}px)`, marginTop: 24, fontFamily: theme.fontBody, fontSize: 26, color: theme.colors.textSub, lineHeight: 1.5 }}>
+          Enquête sur la structure des exploitations agricoles en 2023
         </div>
+        <div style={{ opacity: fadeIn(60), marginTop: 10, fontFamily: theme.fontBody, fontSize: 20, color: theme.colors.textSub }}>
+          En comparaison aux recensements agricoles de 2010 et 2020
+        </div>
+      </div>
+
+      {/* Source bas-droite */}
+      <div style={{ position: 'absolute', bottom: 36, right: 80, opacity: fadeIn(70), fontFamily: theme.fontBody, fontSize: 15, color: theme.colors.textSub }}>
+        Source : Agreste – ESEA 2023
       </div>
     </div>
   );
