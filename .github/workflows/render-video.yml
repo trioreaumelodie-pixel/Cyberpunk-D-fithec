@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ---------- Node / JS ----------
+      # ---------- Node ----------
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -21,21 +21,26 @@ jobs:
       - name: Install JS dependencies
         run: npm ci
 
-      # ---------- Python / TTS ----------
+      # ---------- Python ----------
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install edge-tts
+      - name: Install Python dependencies
         run: pip install edge-tts
 
-      - name: Generate voiceover (fr-FR-DeniseNeural)
-        run: python3 scripts/generate_voiceover.py
+      # ---------- ffmpeg / ffprobe (mesure durée MP3) ----------
+      - name: Install ffmpeg
+        run: sudo apt-get install -y ffmpeg
 
-      # ---------- Chrome ----------
+      # ---------- TTS + timings ----------
+      - name: Generate voiceover & write src/generatedTimings.ts
+        run: python3 scripts/generate_voiceover.py
+        # Le script génère public/audio/*.mp3 ET src/generatedTimings.ts
+
+      # ---------- Chrome system libs ----------
       - name: Install Chrome system libraries
         run: |
-          sudo apt-get update
           sudo apt-get install -y \
             libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
             libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 \
@@ -43,7 +48,7 @@ jobs:
             fonts-liberation
 
       # ---------- Render ----------
-      - name: Render video (ESEA2023)
+      - name: Render video
         run: npx remotion render ESEA2023 out/esea-2023-nouvelle-aquitaine.mp4
 
       # ---------- Upload ----------
