@@ -27,14 +27,14 @@ const scenes = [
   { key: 'outro',      start: s(TIMINGS.outro.start),      dur: s(TIMINGS.outro.dur),      Scene: OutroScene },
 ];
 
-// Fichiers audio voix off générés par TTS (un par scène)
+// Fichiers audio voix off — start + dur calés sur la scène correspondante
 const AUDIO_FILES = [
-  { key: 'title',      file: 'audio/vo_title.mp3',      start: TIMINGS.title.start },
-  { key: 'farmCount',  file: 'audio/vo_farmcount.mp3',  start: TIMINGS.farmCount.start },
-  { key: 'land',       file: 'audio/vo_land.mp3',       start: TIMINGS.land.start },
-  { key: 'livestock',  file: 'audio/vo_livestock.mp3',  start: TIMINGS.livestock.start },
-  { key: 'micro',      file: 'audio/vo_micro.mp3',      start: TIMINGS.micro.start },
-  { key: 'conclusion', file: 'audio/vo_conclusion.mp3', start: TIMINGS.conclusion.start },
+  { key: 'title',      file: 'audio/vo_title.mp3',      start: TIMINGS.title.start,      dur: TIMINGS.title.dur },
+  { key: 'farmCount',  file: 'audio/vo_farmcount.mp3',  start: TIMINGS.farmCount.start,  dur: TIMINGS.farmCount.dur },
+  { key: 'land',       file: 'audio/vo_land.mp3',       start: TIMINGS.land.start,       dur: TIMINGS.land.dur },
+  { key: 'livestock',  file: 'audio/vo_livestock.mp3',  start: TIMINGS.livestock.start,  dur: TIMINGS.livestock.dur },
+  { key: 'micro',      file: 'audio/vo_micro.mp3',      start: TIMINGS.micro.start,      dur: TIMINGS.micro.dur },
+  { key: 'conclusion', file: 'audio/vo_conclusion.mp3', start: TIMINGS.conclusion.start, dur: TIMINGS.conclusion.dur },
 ];
 
 export const VideoESEA: React.FC = () => {
@@ -50,9 +50,9 @@ export const VideoESEA: React.FC = () => {
         </Sequence>
       ))}
 
-      {/* Voix off — chaque fichier audio est placé au bon offset */}
-      {AUDIO_FILES.map(({ key, file, start }) => (
-        <Sequence key={`audio-${key}`} from={s(start)} durationInFrames={s(60)}>
+      {/* Voix off — chaque piste est strictement limitée à sa scène */}
+      {AUDIO_FILES.map(({ key, file, start, dur }) => (
+        <Sequence key={`audio-${key}`} from={s(start)} durationInFrames={s(dur)}>
           <Audio src={staticFile(file)} volume={1} />
         </Sequence>
       ))}
